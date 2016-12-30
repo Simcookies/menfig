@@ -1,6 +1,10 @@
 import tkinter as tk
-from tkinter.filedialog import askopenfilename
+from tkinter import filedialog
+from tkinter import messagebox
+
 import pygubu
+import package.dataprocess as dp
+import matplotlib.pyplot as plt
 
 class Application:
     def __init__(self, master):
@@ -10,19 +14,28 @@ class Application:
         self.mainwindow = builder.get_object('mainWindow', master)
         builder.connect_callbacks(self)
 
-    def explore_file_s11(self):
-        self.explore_file(self, 'strDataFilePath_S11')
+    def draw_figure(self):
+        filename = self.builder.get_object('strDataFilePath').get()
+        if filename == '':
+            messagebox.showinfo('From callback', 'File name can not be blank.')
+            return None
+        try:
+            dp.get_csv_data(filename)
+            self.plot_data = plt.plot(dp.data_x_axis(), dp.data_y_axis())
+            plt.show()
+        except:
+            messagebox.showinfo('From callback', 'File can not be found.')
 
-    def explore_file_s21(self):
-        self.explore_file(self, 'strDataFilePath_S21')
+    def quit_app(self):
+        plt.close('all')
+        self.master.quit()
 
-    @staticmethod
-    def explore_file(master, objId):
+    def explore_file(self):
         # Open file from File Explorer and keep file path
-        filename = askopenfilename(filetypes=[("CSV Data files","*.csv")])
+        filename = filedialog.askopenfilename(filetypes=[("CSV Data files","*.csv")])
 
         # Replace value of Entey
-        objDataFile = master.builder.get_object(objId)
+        objDataFile = self.builder.get_object('strDataFilePath')
         objDataFile.delete(0, 'end')
         objDataFile.insert(0, filename)
 
