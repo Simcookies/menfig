@@ -1,6 +1,6 @@
-import Tkinter as tk
+import tkinter as tk
+from tkinter import filedialog
 import pygubu
-from tkFileDialog import askopenfilename
 
 class Application:
     def __init__(self, master):

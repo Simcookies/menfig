@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import package.dataprocess as dp
 import matplotlib.pyplot as plt
