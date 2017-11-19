@@ -1,45 +1,58 @@
-import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 
 import pygubu
-import package.dataprocess as dp
-import matplotlib
-
-# avoid from crashing after import tkinter (on Mac)
-matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
+from package.drawfig import Drawer
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 line_style_dic = { 'Dashed': '--', 'Dotted': ':', 'Solid': '-', 'Dash-Dotted': '-.' }
 
 class Application:
     def __init__(self, master):
+        # Load UI and set callbacks function
         self.master = master
-        self.builder = builder = pygubu.Builder()
-        builder.add_from_file('gui.ui')
-        self.mainwindow = builder.get_object('mainWindow', master)
-        builder.connect_callbacks(self)
+        self.builder = pygubu.Builder()
+        self.builder.add_from_file('gui.ui')
+        self.mainwindow = self.builder.get_object('mainWindow', master=master)
+        self.builder.connect_callbacks(self)
 
+        # Bundle drawer into canvas of Tk
+        self.drawer = Drawer()
+        self.canvas = FigureCanvasTkAgg(self.drawer.figure, 
+                                        master=self.builder.get_object('fig_area'))
+        self.canvas.get_tk_widget().pack()
+        # toolbar = NavigationToolbar2TkAgg(self.canvas, self.builder.get_object('fig_area'))
+        # toolbar.update()
+        # self.canvas._tkcanvas.pack()
+
+    def set_axes(self):
+        self.drawer.set_axes()
+        self.canvas.show()
+    
     def draw_figure(self):
         # Get file name, line color and line style
-        filename = self.builder.get_object('strDataFilePath').get()
+        objFilePath    = self.builder.get_object('strDataFilePath')
         objSelectColor = self.builder.get_object('selectColor')
-        objSelectLine = self.builder.get_object('selectLineStyle')
+        objSelectLine  = self.builder.get_object('selectLineStyle')
 
-        line_color = objSelectColor["text"].lower()
-        line_style = line_style_dic[objSelectLine["text"]]
-        
+        filename = objFilePath.get()
+        fig_config = {}
+        fig_config['line_color'] = objSelectColor["text"].lower()
+        fig_config['line_style'] = line_style_dic[objSelectLine["text"]]
+
         if filename == '':
             messagebox.showinfo('From callback', 'File name can not be blank.')
             return None
-        try:
-            # Read from data file and draw figure
-            dp.get_csv_data(filename)
-            self.plot_data = plt.plot(dp.data_x_axis(), dp.data_y_axis(),
-                                      color=line_color, linestyle=line_style)
-            plt.show()
-        except:
-            messagebox.showinfo('From callback', 'File can not be found.')
+        
+        self.drawer.draw_fig(filename, fig_config)
+        self.canvas.show()
+        #   except:
+        #    messagebox.showinfo('From callback', 'File can not be found.')
+
+    def clear_fig(self):
+        self.drawer.axes.clear()
+        self.canvas.show()
+        print("TODO: still in developing")
 
     def quit_app(self):
         self.master.quit()
@@ -60,9 +73,3 @@ class Application:
     def on_linemenu_clicked(self, itemId):
         objSelectLine = self.builder.get_object('selectLineStyle')
         objSelectLine["text"] = itemId[4:]
-
-def run():
-    root = tk.Tk()
-    app = Application(root)
-
-    root.mainloop()

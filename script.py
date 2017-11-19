@@ -1,5 +1,8 @@
 #!/usr/bin/python3
+from package import tk, Application
 
-import package.gui as gui
+root = tk.Tk()
+root.wm_title("MenFig")
 
-gui.run()
+Application(root)
+root.mainloop()
