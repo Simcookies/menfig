@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-from package import tk, Application
+import tkinter as tk
+from package import Application
 
 root = tk.Tk()
 root.wm_title("MenFig")

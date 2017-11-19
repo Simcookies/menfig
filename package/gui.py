@@ -1,9 +1,7 @@
-from tkinter import filedialog
-from tkinter import messagebox
-
 import pygubu
 from package.drawfig import Drawer
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import filedialog, messagebox
 
 line_style_dic = { 'Dashed': '--', 'Dotted': ':', 'Solid': '-', 'Dash-Dotted': '-.' }
 
@@ -21,13 +19,15 @@ class Application:
         self.canvas = FigureCanvasTkAgg(self.drawer.figure, 
                                         master=self.builder.get_object('fig_area'))
         self.canvas.get_tk_widget().pack()
-        # toolbar = NavigationToolbar2TkAgg(self.canvas, self.builder.get_object('fig_area'))
-        # toolbar.update()
-        # self.canvas._tkcanvas.pack()
 
-    def set_axes(self):
-        self.drawer.set_axes()
-        self.canvas.show()
+    def set_axes(self):        
+        axes_config = {}
+        axes_config['x_label'] = self.builder.get_object('strXLabel').get()
+        axes_config['y_label'] = self.builder.get_object('strYLabel').get()
+        # axes_config['x_lims']  = self.builder.get_object('xLimStart').get()
+        
+        self.drawer.set_axes(axes_config)
+        self.refresh_fig_area()
     
     def draw_figure(self):
         # Get file name, line color and line style
@@ -45,14 +45,13 @@ class Application:
             return None
         
         self.drawer.draw_fig(filename, fig_config)
-        self.canvas.show()
+        self.refresh_fig_area()
         #   except:
         #    messagebox.showinfo('From callback', 'File can not be found.')
 
     def clear_fig(self):
-        self.drawer.axes.clear()
-        self.canvas.show()
-        print("TODO: still in developing")
+        self.drawer.clear_fig()
+        self.refresh_fig_area()
 
     def quit_app(self):
         self.master.quit()
@@ -73,3 +72,6 @@ class Application:
     def on_linemenu_clicked(self, itemId):
         objSelectLine = self.builder.get_object('selectLineStyle')
         objSelectLine["text"] = itemId[4:]
+
+    def refresh_fig_area(self):
+        self.canvas.show()

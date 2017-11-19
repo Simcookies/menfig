@@ -1,7 +1,7 @@
-from matplotlib.figure import Figure
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from package import dataprocess as dp
+from matplotlib.figure import Figure
+from package.dataprocess import CSVData
 
 del mpl.font_manager.weight_dict['roman']
 mpl.font_manager._rebuild()
@@ -14,21 +14,24 @@ class Drawer:
         plt.rcParams["font.family"] = "Times New Roman"
         plt.rcParams["lines.linewidth"] = 1
 
-        self.figure = Figure()
-        self.axes   = self.figure.add_subplot(111)
+        self.figure   = Figure()
+        self.axes     = self.figure.add_subplot(111)
+        self.csv_data = CSVData()
 
     def draw_fig(self, fig_data, fig_config):
         # fig_config: dictionary
         #   'line_color': string
         #   'line_style': string
-        dp.get_csv_data(fig_data)
-        self.axes.plot(dp.data_x_axis(), dp.data_y_axis(),
+        self.csv_data.load_data(fig_data)
+        self.axes.plot(self.csv_data.data_x_axis, self.csv_data.data_y_axis,
                        color=fig_config['line_color'], linestyle=fig_config['line_style'])
-        #plt.xlim(0,4)
-        #plt.ylim(-70,5)
+        # plt.xlim(0,4)
+        # plt.ylim(-70,5)
     
-    def set_axes(self, axes_config=None):
-        self.axes.set_xlabel("Frequency(GHz)")
-        self.axes.set_ylabel(r'|S$_{11}$|,|S$_{21}$|(dB)')
+    def set_axes(self, axes_config):
+        self.axes.set_xlabel(axes_config['x_label'])
+        self.axes.set_ylabel(axes_config['y_label'])
         self.axes.tick_params(direction='in', length=8, top=True, right=True)
-    #def destroy_fig(self):
+
+    def clear_fig(self):
+        self.axes.clear()

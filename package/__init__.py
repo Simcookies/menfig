@@ -1,4 +1,3 @@
-import tkinter as tk
 from .drawfig import Drawer
-from .gui import *
-from .dataprocess import *
+from .gui import Application
+from .dataprocess import CSVData
